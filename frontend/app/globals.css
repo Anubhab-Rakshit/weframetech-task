@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-black: #000000;
+  --color-brand-white: #ffffff;
+  
+  /* Official CAH Pastel Palette */
+  --color-cah-pink: #fbcfe8;
+  --color-cah-yellow: #fef08a;
+  --color-cah-green: #bbf7d0;
+  --color-cah-orange: #fdba74;
+  --color-cah-blue: #bae6fd;
+  --color-cah-purple: #e9d5ff;
+
+  --font-inter: "Inter", "Helvetica Neue", Arial, sans-serif;
+  
+  --shadow-cah: 0 4px 24px rgba(0, 0, 0, 0.1);
+  --shadow-card: 0 10px 40px -10px rgba(0, 0, 0, 0.4);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    background-color: #000000;
+  }
+
+  body {
+    background-color: #000000;
+    color: #ffffff;
+    font-family: var(--font-inter);
+    overflow-x: hidden;
+  }
+}
+
+@layer components {
+  .cah-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 2rem;
+  }
+
+  /* Official Typography Styles */
+  .display-title {
+    font-size: clamp(3.5rem, 8vw, 8rem);
+    font-weight: 900;
+    line-height: 0.85;
+    letter-spacing: -0.05em;
+    text-transform: none;
+  }
+
+  .section-heading {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+  }
+
+  /* Button Overhaul */
+  .btn-cah {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #ffffff;
+    color: #000000;
+    padding: 1rem 2.5rem;
+    border-radius: 9999px;
+    font-weight: 800;
+    font-size: 1.125rem;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-cah:hover {
+    transform: scale(1.05);
+    background-color: #f3f4f6;
+  }
+
+  .btn-cah-black {
+    background-color: #000000;
+    color: #ffffff;
+  }
+
+  .btn-cah-black:hover {
+    background-color: #1a1a1a;
+  }
+
+  /* Card visual base */
+  .cah-card-base {
+    position: relative;
+    border-radius: 1.5rem;
+    background: #ffffff;
+    color: #000000;
+    padding: 1.5rem;
+    aspect-ratio: 63 / 88; /* Standard Poker Card Ratio */
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.3s ease-out;
+    border: 1px solid rgba(0,0,0,0.1);
+  }
+
+  .cah-card-black {
+    background: #000000;
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #333333;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #444444;
+}
+
+/* Animations */
+@keyframes marquee-official {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+.animate-marquee-slow {
+  animation: marquee-official 40s linear infinite;
+}

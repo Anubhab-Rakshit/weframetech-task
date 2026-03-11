@@ -3,12 +3,58 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, X, ShoppingBag } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
+
+// Official shop megamenu categories with colorful backgrounds
+// matching what was seen in the official site screenshot
+const SHOP_CATEGORIES = [
+  {
+    title: "All Products",
+    href: "/products",
+    bg: "bg-[#c084fc]", // purple
+    image: null,
+  },
+  {
+    title: "Expansions",
+    href: "/products#expansions",
+    bg: "bg-[#facc15]", // yellow
+    image: null,
+  },
+  {
+    title: "Twists",
+    href: "/products#twists",
+    bg: "bg-[#7dd3fc]", // blue
+    image: null,
+  },
+];
+
+const ABOUT_LINKS = [
+  { title: "How to Play", href: "/how-to-play" },
+  { title: "Our Story", href: "/story" },
+  { title: "Jack Rochester", href: "/story" },
+  { title: "Press", href: "/press" },
+  { title: "Jobs", href: "/jobs" },
+];
+
+import CartDrawer from "./CartDrawer";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [activeMenu, setActiveMenu] = useState<null | "shop" | "about">(null);
-  const [cartCount, setCartCount] = useState(0);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  
+  // Mock cart state for UI demonstration
+  const [cartItems, setCartItems] = useState([
+    {
+      id: "more-cah",
+      name: "More Cards Against Humanity",
+      price: 29,
+      quantity: 1,
+      image: "https://www.cardsagainsthumanity.com/static/img/shop/more-cah.png",
+    }
+  ]);
+
+  const cartCount = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -16,125 +62,223 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const menuItems = {
-    shop: [
-      {
-        title: "All Products",
-        image: "https://www.cardsagainsthumanity.com/static/img/shop/all-products.png",
-        href: "/products",
-      },
-      {
-        title: "Main Games",
-        image: "https://www.cardsagainsthumanity.com/static/img/shop/main-games.png",
-        href: "/products#main",
-      },
-      {
-        title: "Expansions",
-        image: "https://www.cardsagainsthumanity.com/static/img/shop/expansions.png",
-        href: "/products#expansions",
-      },
-    ],
-    about: [
-      { title: "How to Play", href: "/how-to-play" },
-      { title: "Our Story", href: "/story" },
-      { title: "Press", href: "/press" },
-    ],
+  const closeMenu = () => setActiveMenu(null);
+
+  const updateQuantity = (id: string, delta: number) => {
+    setCartItems(prev => prev.map(item => 
+      item.id === id ? { ...item, quantity: Math.max(1, item.quantity + delta) } : item
+    ));
+  };
+
+  const removeItem = (id: string) => {
+    setCartItems(prev => prev.filter(item => item.id !== id));
   };
 
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
-        isScrolled ? "bg-black py-4 shadow-cah" : "bg-transparent py-8"
-      }`}
-    >
-      <div className="cah-container flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="group">
-          <motion.div
-            className="text-white font-black text-2xl leading-[0.85] tracking-tighter uppercase"
-            whileHover={{ scale: 1.02 }}
+    <>
+      <nav
+        className={`fixed top-0 left-0 right-0 z-[100] transition-colors duration-300 ${
+          isScrolled || activeMenu ? "bg-black" : "bg-transparent"
+        }`}
+      >
+        <div
+          className="flex items-center justify-between px-6 md:px-10"
+          style={{ height: "68px" }}
+        >
+          {/* Logo */}
+          <Link
+            href="/"
+            onClick={closeMenu}
+            className="text-white font-black leading-[0.85] tracking-tight uppercase hover:opacity-80 transition-opacity"
+            style={{
+              fontSize: "clamp(13px, 1.4vw, 18px)",
+              fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+            }}
           >
             Cards Against
             <br />
             Humanity
-          </motion.div>
-        </Link>
+          </Link>
 
-        {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-12 font-black text-white uppercase text-lg">
-          <button
-            onClick={() => setActiveMenu(activeMenu === "shop" ? null : "shop")}
-            className="flex items-center gap-2 hover:opacity-70 transition-opacity"
-          >
-            Shop <ChevronDown className={`w-5 h-5 transition-transform ${activeMenu === "shop" ? "rotate-180" : ""}`} />
-          </button>
-          <button
-            onClick={() => setActiveMenu(activeMenu === "about" ? null : "about")}
-            className="flex items-center gap-2 hover:opacity-70 transition-opacity"
-          >
-            About <ChevronDown className={`w-5 h-5 transition-transform ${activeMenu === "about" ? "rotate-180" : ""}`} />
-          </button>
+          {/* Desktop Nav — right side */}
+          <div className="flex items-center gap-2 ml-auto">
+            {/* Shop */}
+            <button
+              onClick={() => setActiveMenu(activeMenu === "shop" ? null : "shop")}
+              className="flex items-center gap-1.5 text-white font-black uppercase px-4 py-3 hover:opacity-70 transition-opacity"
+              style={{
+                fontSize: "clamp(14px, 1.2vw, 17px)",
+                fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+              }}
+            >
+              Shop
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${activeMenu === "shop" ? "rotate-180" : ""}`}
+                strokeWidth={2.5}
+              />
+            </button>
+
+            {/* About */}
+            <button
+              onClick={() => setActiveMenu(activeMenu === "about" ? null : "about")}
+              className="flex items-center gap-1.5 text-white font-black uppercase px-4 py-3 hover:opacity-70 transition-opacity"
+              style={{
+                fontSize: "clamp(14px, 1.2vw, 17px)",
+                fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+              }}
+            >
+              About
+              <ChevronDown
+                className={`w-4 h-4 transition-transform duration-200 ${activeMenu === "about" ? "rotate-180" : ""}`}
+                strokeWidth={2.5}
+              />
+            </button>
+
+            {/* Cart — official \ N / style */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="text-white font-black hover:opacity-70 transition-opacity px-4 py-3"
+              style={{
+                fontSize: "clamp(14px, 1.2vw, 17px)",
+                fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+              }}
+            >
+              \ {cartCount} /
+            </button>
+          </div>
         </div>
 
-        {/* Cart */}
-        <Link href="/cart" className="flex items-center text-white font-black text-2xl tracking-tighter hover:scale-110 transition-transform">
-          \ {cartCount} /
-        </Link>
-      </div>
-
-      {/* Megamenu Backdrop */}
-      <AnimatePresence>
-        {activeMenu && (
-          <>
+        {/* Megamenu */}
+        <AnimatePresence>
+          {activeMenu && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setActiveMenu(null)}
-              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[-1]"
-            />
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
+              key={activeMenu}
+              initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="absolute top-full left-0 right-0 bg-black border-t border-white/10 p-12 shadow-2xl"
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="bg-black border-t border-white/10 w-full"
             >
-              <div className="cah-container">
-                <div className="flex items-center justify-between mb-8">
-                  <h3 className="text-white/40 font-black uppercase tracking-widest text-sm">
-                    {activeMenu === "shop" ? "Choose your path to hell" : "Learn our lore"}
-                  </h3>
-                  <button onClick={() => setActiveMenu(null)} className="text-white/40 hover:text-white">
-                    <X className="w-8 h-8" />
+              {activeMenu === "shop" ? (
+                // Official shop megamenu: left col = tagline + CTA, right cols = category tiles
+                <div className="flex items-start gap-8 px-10 py-8">
+                  {/* Left column */}
+                  <div className="w-1/4 flex-shrink-0 pr-8">
+                    <p
+                      className="text-white font-black leading-tight mb-8"
+                      style={{
+                        fontSize: "clamp(22px, 2.5vw, 36px)",
+                        fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+                      }}
+                    >
+                      A party game
+                      <br />
+                      for horrible
+                      <br />
+                      people.
+                    </p>
+                    <Link
+                      href="/products"
+                      onClick={closeMenu}
+                      className="inline-block bg-white text-black font-black rounded-full px-7 py-3 hover:bg-white/90 transition-colors uppercase"
+                      style={{
+                        fontSize: "14px",
+                        fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+                      }}
+                    >
+                      Buy Stuff
+                    </Link>
+                  </div>
+
+                  {/* Right: category tiles */}
+                  <div className="flex gap-4 flex-1">
+                    {SHOP_CATEGORIES.map((cat) => (
+                      <Link
+                        key={cat.title}
+                        href={cat.href}
+                        onClick={closeMenu}
+                        className="group flex-1 min-w-0"
+                      >
+                        <div
+                          className={`${cat.bg} rounded-2xl overflow-hidden aspect-[4/3] mb-3 flex items-end p-4 group-hover:scale-[1.02] transition-transform`}
+                        >
+                          {/* Placeholder visual */}
+                          <div className="w-full h-full opacity-0" />
+                        </div>
+                        <p
+                          className="text-white font-black group-hover:underline underline-offset-4 decoration-2"
+                          style={{
+                            fontSize: "clamp(18px, 1.8vw, 24px)",
+                            fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+                          }}
+                        >
+                          {cat.title}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+
+                  <button
+                    onClick={closeMenu}
+                    className="text-white/40 hover:text-white transition-colors ml-4 flex-shrink-0"
+                  >
+                    <X className="w-6 h-6" />
                   </button>
                 </div>
-
-                <div className={`grid ${activeMenu === "shop" ? "grid-cols-3" : "grid-cols-4"} gap-8`}>
-                  {activeMenu === "shop" ? (
-                    menuItems.shop.map((item) => (
-                      <Link key={item.title} href={item.href} onClick={() => setActiveMenu(null)} className="group">
-                        <div className="bg-white/5 aspect-video rounded-xl overflow-hidden mb-4 border border-white/10 group-hover:border-white transition-colors">
-                          <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                        </div>
-                        <span className="text-white font-black text-2xl group-hover:underline underline-offset-4 decoration-4">
-                          {item.title}
-                        </span>
+              ) : (
+                // About megamenu: simple link list
+                <div className="flex items-start gap-16 px-10 py-8">
+                  <div className="flex flex-col gap-4">
+                    {ABOUT_LINKS.map((link) => (
+                      <Link
+                        key={link.title}
+                        href={link.href}
+                        onClick={closeMenu}
+                        className="text-white font-black hover:opacity-60 transition-opacity"
+                        style={{
+                          fontSize: "clamp(20px, 2.2vw, 32px)",
+                          fontFamily: "'Helvetica Neue', 'Inter', Arial, sans-serif",
+                        }}
+                      >
+                        {link.title}
                       </Link>
-                    ))
-                  ) : (
-                    menuItems.about.map((item) => (
-                      <Link key={item.title} href={item.href} onClick={() => setActiveMenu(null)} className="text-white font-black text-4xl hover:line-through transition-all decoration-white">
-                        {item.title}
-                      </Link>
-                    ))
-                  )}
+                    ))}
+                  </div>
+                  <button
+                    onClick={closeMenu}
+                    className="text-white/40 hover:text-white transition-colors"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
                 </div>
-              </div>
+              )}
             </motion.div>
-          </>
+          )}
+        </AnimatePresence>
+      </nav>
+
+      {/* Backdrop when menu is open */}
+      <AnimatePresence>
+        {activeMenu && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[99] bg-black/50 backdrop-blur-sm"
+            onClick={closeMenu}
+          />
         )}
       </AnimatePresence>
-    </nav>
+
+      {/* Cart Drawer Container */}
+      <CartDrawer 
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={cartItems}
+        onUpdateQuantity={updateQuantity}
+        onRemove={removeItem}
+      />
+    </>
   );
 };
 
